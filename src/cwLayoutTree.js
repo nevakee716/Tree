@@ -108,8 +108,8 @@
                 titleNodeLeft  = this.viewSchema.NodesByID[child[1].NodeId].NodeName ;              
                 titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
                
-                this.maxLength[downward][0] = titleNodeRight.length;
-                this.maxLength[upward][0] = titleNodeLeft.length;               
+                this.maxLength.downward[0] = titleNodeRight.length;
+                this.maxLength.upward[0] = titleNodeLeft.length;               
 
                 this.simplifiedJson = {
                     "upward": {
