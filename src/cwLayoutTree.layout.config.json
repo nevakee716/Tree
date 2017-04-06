@@ -1,0 +1,31 @@
+{
+    "Name": "Tree",
+    "DisplayName": "Tree",
+    "Description": "Allow you to display your association in a Tree Map",
+    "JavaScriptClassName": "cwLayoutTree",
+    "Options": [
+    {
+        "Id": "hidden-nodes",
+        "DisplayName": "Hidden Nodes",
+        "Description": "Use comma as splitter character",
+        "Type": 0
+    },
+	{
+        "Id": "popOutList",
+        "DisplayName": "popOut List",
+        "Description": "list the scriptname of the objectType and the popOut",
+        "Type": 0
+    },
+    {
+        "Id": "clickable-nodes",
+        "DisplayName": "Clickable Items",
+        "Description": "List of clickable items (object type scriptname separated with comma)",
+        "Type": 0
+    },
+    {
+        "Id": "shapes",
+        "DisplayName": "Shapes",
+        "Description": "JSON object. Key is object scriptname. Value is [ellipse, box]. If empty, shape will be a box",
+        "Type": 0
+    }]
+}
