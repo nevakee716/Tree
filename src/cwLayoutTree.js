@@ -216,6 +216,7 @@
                     cwAPI.Log.Error(error);
                 }
             });
+        }
     };
 
     cwLayoutTree.prototype.createTree = function() {
