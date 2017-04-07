@@ -196,7 +196,7 @@
         if(cwAPI.isDebugMode() === true) {
             that.createTree();
         } else {
-            libToLoad = ['modules/d3/d3.min.js','modules/d3Tree/d3Tree.min.js','modules/d3Menu/d3Menu.min'];
+            libToLoad = ['modules/d3/d3.min.js','modules/d3Tree/d3Tree.min.js','modules/d3Menu/d3Menu.min.js'];
             // AsyncLoad
             cwApi.customLibs.aSyncLayoutLoader.loadUrls(libToLoad,function(error){
                 if(error === null) {
