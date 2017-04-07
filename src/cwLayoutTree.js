@@ -201,11 +201,15 @@
             // AsyncLoad
             cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3/d3.min.js'],function(error){
                 if(error === null) {
-                    cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3Tree/d3Tree.min.js','modules/d3Menu/d3Menu.min.js'],function(error){
+                    cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3Menu/d3Menu.min.js'],function(error){
                         if(error === null) {
-                            that.createTree();
-                        } else {
-                            cwAPI.Log.Error(error);
+                            cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3Tree/d3Tree.min.js'],function(error){
+                                if(error === null) {
+                                    that.createTree();
+                                } else {
+                                    cwAPI.Log.Error(error);
+                                }
+                            });
                         }
                     });
                 } else {
