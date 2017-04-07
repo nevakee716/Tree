@@ -196,16 +196,22 @@
         if(cwAPI.isDebugMode() === true) {
             that.createTree();
         } else {
-            libToLoad = ['modules/d3/d3.min.js','modules/d3Tree/d3Tree.min.js','modules/d3Menu/d3Menu.min.js'];
+
+
             // AsyncLoad
-            cwApi.customLibs.aSyncLayoutLoader.loadUrls(libToLoad,function(error){
+            cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3/d3.min.js'],function(error){
                 if(error === null) {
-                    that.createTree();                
+                    cwApi.customLibs.aSyncLayoutLoader.loadUrls(['modules/d3Tree/d3Tree.min.js','modules/d3Menu/d3Menu.min.js'],function(error){
+                        if(error === null) {
+                            that.createTree();
+                        } else {
+                            cwAPI.Log.Error(error);
+                        }
+                    });
                 } else {
                     cwAPI.Log.Error(error);
                 }
             });
-        }
     };
 
     cwLayoutTree.prototype.createTree = function() {
