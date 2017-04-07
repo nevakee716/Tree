@@ -2,7 +2,7 @@
 
 | Name             | Status  | Stable | Work but need more test | Nightly | Updated by        |
 |------------------|---------|--------|-------------------------|---------|-------------------|
-| Tree Layout      | Version | x      | 1.0                     | 1.x     | Mathias PFAUWADEL |
+| Tree Layout      | Version | x      | 1.2                     | 1.x     | Mathias PFAUWADEL |
 
 ## Patch Notes
 
@@ -27,7 +27,7 @@ This layout can be used in Index or Object Page (use a special view) but without
 https://github.com/casewise/cpm/wiki
 
 ## Screenshot:
-![](https://raw.githubusercontent.com/nevakee716/Tree/master/screen/1.png)
+<img src="https://raw.githubusercontent.com/nevakee716/Tree/master/screen/1.png" alt="Drawing" style="width: 95%;"/>
 
 ## Options
 
