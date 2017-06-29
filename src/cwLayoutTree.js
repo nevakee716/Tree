@@ -4,6 +4,21 @@
 (function (cwApi, $) {
     "use strict";
 
+
+    var uniqueArrayJSON = function(array) {
+        var a = array.concat();
+        for(var i=0; i<a.length; ++i) {
+            for(var j=i+1; j<a.length; ++j) {
+                if(JSON.stringify(a[i]) == JSON.stringify(a[j])) {
+                    a.splice(j--, 1);
+                }
+            }
+        }
+
+        return a;
+    };
+
+
     // constructor
     var cwLayoutTree = function (options, viewSchema) {
         cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema);
@@ -141,7 +156,7 @@
                 for (var i = 0; i < child.associations[associationNode].length; i += 1) {
                     nextChild = child.associations[associationNode][i];
                     if(this.hiddenNodes.indexOf(associationNode) !== -1) {
-                        childrenArray = childrenArray.concat(this.simplify(direction,depth,nextChild,nextFilter));
+                        childrenArray = uniqueArrayJSON(childrenArray.concat(this.simplify(direction,depth,nextChild,nextFilter)));
                     } else {
                         element = {}; 
                         element.name = nextChild.name;
