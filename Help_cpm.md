@@ -34,11 +34,14 @@ Follow the following steps to add a custom layout to evolve
 
 * via windows command go in C:\Casewise\Evolve\Site\bin or the corresponding installation folder of Evolve by typing cd C:\Casewise\Evolve\Site\bin
 * if it's the 1st time you use cpm install
+  * Remove the file C:\Casewise\Evolve\Site\bin\evolve.json
   * type cpm --install
   * then change the version of evolve in C:\Casewise\Evolve\Site\bin\evolve.json to match your evolve
 * Type : cpm --install Layout_Name (this will install the layout into Marketplace/libs)
 * Type : cpm --install (this will update your existing layouts and list the layouts availables)
 * if there is a problem delete evolve.json 
+
+The C:\Casewise\Evolve\Site\bin\evolve.json containes now all of your layout, if you migrates, you can copy the this file, then execute cpm --install on your new plateform, and it will install all of your layout
 
 # Install Custom Layout (Offline Installation)
 
@@ -51,23 +54,20 @@ Follow the following steps to add a custom layout to evolve
 ## Installation offline
 
 * unzip the zip file
-* Put the contenant of src in Casewise\Evolve\Site\bin\webDesigner\custom\Marketplace\libs\LAYOUT_NAME
+* Put the contenant of src in Casewise\Evolve\Site\bin\webDesigner\custom\Marketplace\libs\LAYOUT_or_Specific_NAME\src
 * Put the contenant of external in Casewise\Evolve\Site\bin\webDesigner\js\external
 * Put the contenant of modules in Casewise\Evolve\Site\bin\webDesigner\libs\modules
 * Put the contenant of fonts in Casewise\Evolve\Site\bin\webDesigner\fonts
 * Put the contenant of angularHTMLayout in Casewise\Evolve\Data\Common\html\angularLayouts
 
-
 # Create a Custom Layout 
 
-* cpm --name CustomLayoutName
-* it's strongly advised to create a github for your new layout
-* if you need to load external libraries like D3js, look at FilterByExternalAssociation as exemple
+* look at the networkLayout as exemple structure
+* if you need to load external libraries like D3js, look at networkLayout as exemple
 
 # Publish a custom layout 
 
 Required:
-* ask access to https://github.com/casewise/evolve-layouts repository which contains all evolve custom layouts (Pouya.Mohtacham@casewise.com)
 * clone this repository in the folder of your choice
 
 In your custom layout folder:
@@ -79,3 +79,5 @@ In your custom layout folder:
 * commit and push the modifications in evolve-layouts repository
 
 
+# Contact info
+For any comment/bug/question, you can send an email to franceconsultingservicesteam@erwin.com
