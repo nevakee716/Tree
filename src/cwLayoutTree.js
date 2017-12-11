@@ -73,13 +73,13 @@
             var child = this.viewSchema.NodesByID[this.nodeID].SortedChildren;
             if(child.length === 1) {
                 titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
-                this.maxLength[0] = titleNodeRight.length;
+                this.maxLength["downward"][0] = titleNodeRight.length;
                 this.simplifiedJson = {
                     "downward": {
                         "direction":"downward",
                         "title": titleNodeRight,
                         "name": "origin",
-                        "children":this.simplify("downward",depth + 1,object) 
+                        "children": this.simplify("downward",depth + 1,object)  
                     }
                 };  
             } else if(child.length === 2) {
