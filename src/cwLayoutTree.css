@@ -1,33 +1,33 @@
-#cwLayoutTree svg {
+.cwLayoutTree svg {
   cursor: all-scroll;
 }
-#cwLayoutTree .centralText {
+.cwLayoutTree .centralText {
   font: 23spx sans-serif;
   fill: #222;
   font-weight: bold;
 }
-#cwLayoutTree .downwardNode circle {
+.cwLayoutTree .downwardNode circle {
   fill: #fff;
   stroke: #8b4513;
   stroke-width: 2.5px;
 }
-#cwLayoutTree .upwardNode circle {
+.cwLayoutTree .upwardNode circle {
   fill: #fff;
   stroke: #37592b;
   stroke-width: 2.5px;
 }
-#cwLayoutTree .downwardNode text,
-#cwLayoutTree .upwardNode text {
+.cwLayoutTree .downwardNode text,
+.cwLayoutTree .upwardNode text {
   font: 12px sans-serif;
   font-weight: bold;
 }
-#cwLayoutTree .downwardLink {
+.cwLayoutTree .downwardLink {
   fill: none;
   stroke: #8b4513;
   stroke-width: 3px;
   opacity: 0.2;
 }
-#cwLayoutTree .upwardLink {
+.cwLayoutTree .upwardLink {
   fill: none;
   stroke: #37592b;
   stroke-width: 3px;

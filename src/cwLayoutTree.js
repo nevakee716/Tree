@@ -4,7 +4,7 @@
 (function (cwApi, $) {
     "use strict";
 
-
+    
     var uniqueArrayJSON = function(array) {
         var a = array.concat();
         for(var i=0; i<a.length; ++i) {
@@ -23,10 +23,14 @@
     var cwLayoutTree = function (options, viewSchema) {
         cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema);
         cwApi.registerLayoutForJSActions(this);
+        this.multiLineCount = this.options.CustomOptions['multiLineCount'];
+        this.multiLineCount = 5;
         this.maxLength = {};
         this.maxLength.downward = {};
         this.maxLength.upward = {} ; 
-        this.maxLength.offset = 150;     
+        this.maxLength.offset = this.options.CustomOptions['horizontalSpacing'];    
+        this.nodeIdLeft = this.options.CustomOptions['nodeIdLeft'];   
+        this.nodeIdRight = this.options.CustomOptions['nodeIdRight'];   
         this.popOut = {};
         this.hiddenNodes = [];
         this.getPopOutList(this.options.CustomOptions['popOutList']);
@@ -67,24 +71,24 @@
         var depth = 0;
         var titleNodeRight,titleNodeLeft;
         this.originalObject = object;
-        output.push('<div id="cwLayoutTree"></div>');
+        output.push('<div class="cwLayoutTree" id="cwLayoutTree_' + this.nodeID + '"></div>');
         if(cwAPI.isIndexPage()) {
             this.title = this.mmNode.NodeName;
-            var child = this.viewSchema.NodesByID[this.nodeID].SortedChildren;
-            if(child.length === 1) {
-                titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
+            var child = this.viewSchema.NodesByID[this.nodeIdRight].SortedChildren;
+            if(this.nodeIdLeft === "") {
+                titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
                 this.maxLength["downward"][0] = titleNodeRight.length;
                 this.simplifiedJson = {
                     "downward": {
                         "direction":"downward",
                         "title": titleNodeRight,
                         "name": "origin",
-                        "children": this.simplify("downward",depth + 1,object)  
+                        "children": this.simplify("downward",depth + 1,object.associations[this.nodeID])  
                     }
                 };  
-            } else if(child.length === 2) {
-                titleNodeLeft  = this.viewSchema.NodesByID[child[1].NodeId].NodeName  ;             
-                titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
+            } else if(this.nodeIdLeft !== "" && this.nodeIdRight !== "") {
+                titleNodeLeft  = this.viewSchema.NodesByID[this.nodeIdRight].NodeName  ;             
+                titleNodeRight = this.viewSchema.NodesByID[this.nodeIdLeft].NodeName;
                
                 this.maxLength["downward"][0] = titleNodeRight.length;
                 this.maxLength["upward"][0] = titleNodeLeft.length;
@@ -94,13 +98,13 @@
                         "direction":"upward",
                         "title": titleNodeLeft,
                         "name": "origin",
-                        "children":this.simplify("upward",depth + 1,object,null,child[0].NodeId) 
+                        "children":this.simplify("upward",depth + 1,object.associations[this.nodeID],this.nodeIdRight) 
                     },
                     "downward": {
                         "direction":"downward",
                         "title": titleNodeRight,
                         "name": "origin",
-                        "children":this.simplify("downward",depth + 1,object,null,child[1].NodeId)  
+                        "children":this.simplify("downward",depth + 1,object.associations[this.nodeID],this.nodeIdLeft) 
                     }
                 };               
             }     
@@ -108,20 +112,20 @@
             this.title = object.name;
             var child = this.viewSchema.NodesByID[this.viewSchema.RootNodesId[0]].SortedChildren;
             
-            if(child.length === 1) {
-                titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
+            if(this.nodeIdLeft === "") {
+                titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
                 this.maxLength.downward[0] = titleNodeRight.length;
                 this.simplifiedJson = {
                     "downward": {
                         "direction":"downward",
-                        "title": this.viewSchema.NodesByID[child[0].NodeId].NodeName,
+                        "title": this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
                         "name": "origin",
-                        "children":this.simplify("downward",depth + 1,object) 
+                        "children":this.simplify("downward",depth + 1,object.associations[this.nodeIdRight]) 
                     }
                 };  
-            } else if(child.length === 2) {
-                titleNodeLeft  = this.viewSchema.NodesByID[child[1].NodeId].NodeName ;              
-                titleNodeRight = this.viewSchema.NodesByID[child[0].NodeId].NodeName;
+            } else if(this.nodeIdRight !== "" && this.nodeIdLeft !== "") {
+                titleNodeLeft  = this.viewSchema.NodesByID[this.nodeIdLeft].NodeName ;              
+                titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
                
                 this.maxLength.downward[0] = titleNodeRight.length;
                 this.maxLength.upward[0] = titleNodeLeft.length;               
@@ -129,15 +133,16 @@
                 this.simplifiedJson = {
                     "upward": {
                         "direction":"upward",
-                        "title": this.viewSchema.NodesByID[child[1].NodeId].NodeName,
+                        "title": this.viewSchema.NodesByID[this.nodeIdLeft].NodeName,
                         "name": "origin",
-                        "children":this.simplify("upward",depth + 1,object,child[0].NodeId) 
+                        "children":this.simplify("upward",depth + 1,object.associations[this.nodeIdLeft]) 
                     },
                     "downward": {
                         "direction":"downward",
-                        "title": this.viewSchema.NodesByID[child[0].NodeId].NodeName,
+                        "title": this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
                         "name": "origin",
-                        "children":this.simplify("downward",depth + 1,object,child[1].NodeId)  
+                        "children":this.simplify("downward",depth + 1,object.associations[this.nodeIdRight])  
+                         
                     }
                 };               
             }
@@ -145,12 +150,36 @@
         
     };
 
+    cwLayoutTree.prototype.multiLine = function(name,size) {
+        if(size !== "" && size > 0) {
+            var nameSplit = name.split(" "); 
+            var carry = 0;
+            var multiLineName = "";
+            for (var i = 0; i < nameSplit.length -1; i += 1) {
+                if(nameSplit[i].length > size || carry + nameSplit[i].length > size) {
+                    multiLineName += nameSplit[i] + "\n";
+                    carry = 0;
+                } else {
+                    carry += nameSplit[i].length + 1;
+                    multiLineName += nameSplit[i] + " ";
+                }
+            }
+            multiLineName = multiLineName + nameSplit[nameSplit.length - 1];
 
+            return multiLineName ;            
+        } else {
+            return name;
+        }
+
+
+    };
 
     cwLayoutTree.prototype.simplify = function (direction,depth,child,filter,nextFilter) {
         var childrenArray = [];
         var element;
         var nextChild;
+        if(child && child.associations === undefined) child.associations = child;
+
         for (var associationNode in child.associations) {
             if (child.associations.hasOwnProperty(associationNode) && associationNode !== filter) {
                 for (var i = 0; i < child.associations[associationNode].length; i += 1) {
@@ -159,7 +188,7 @@
                         childrenArray = uniqueArrayJSON(childrenArray.concat(this.simplify(direction,depth,nextChild,nextFilter)));
                     } else {
                         element = {}; 
-                        element.name = nextChild.name;
+                        element.name = this.multiLine(nextChild.name,this.multiLineCount);
                         element.object_id = nextChild.object_id;
                         element.objectTypeScriptName = nextChild.objectTypeScriptName;
 
@@ -174,7 +203,9 @@
                     }
                 }
             } 
-        }
+        }            
+
+        
         return childrenArray;
     };
 
@@ -249,7 +280,7 @@
         menuActions.push(menuAction2);
 
 
-        var container = document.getElementById("cwLayoutTree");
+        var container = document.getElementById("cwLayoutTree_" + this.nodeID);
         container.addEventListener('openObjectPage', this.openObjectPage.bind(this));  
         container.addEventListener('openPopOut', this.openPopOut.bind(this)); 
         this.tree.drawChart(this.simplifiedJson,container,this.title,this.maxLength,menuActions);

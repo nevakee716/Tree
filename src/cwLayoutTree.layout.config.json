@@ -15,5 +15,24 @@
         "DisplayName": "popOut List",
         "Description": "list the scriptname of the objectType and the popOut",
         "Type": 0
-    }]
+    },
+    {
+        "Id": "horizontalSpacing",
+        "DisplayName": "Horizontal Spacing",
+        "Description": "Horizontal Spacing between node of the tree, usually 150 is good value",
+        "Type": 0
+    },
+    {
+        "Id": "nodeIdLeft",
+        "DisplayName": "Left Branch Node ID",
+        "Description": "Left Branch Node ID",
+        "Type": 0
+    },
+    {
+        "Id": "nodeIdRight",
+        "DisplayName": "Right Branch Node ID",
+        "Description": "Right Branch Node ID",
+        "Type": 0
+    }
+    ]
 }
