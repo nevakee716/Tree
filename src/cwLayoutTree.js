@@ -28,11 +28,16 @@
         this.maxLength = {};
         this.maxLength.downward = {};
         this.maxLength.upward = {} ; 
-        this.maxLength.offset = this.options.CustomOptions['horizontalSpacing'];    
+        if(this.options.CustomOptions['horizontalOffset']) this.maxLength.offset = this.options.CustomOptions['horizontalOffset'];
+        else this.maxLength.offset = 20;    
+        if(this.options.CustomOptions['horizontalSpacingFactor']) this.maxLength.offset = this.options.CustomOptions['horizontalSpacingFactor'];
+        else this.linkLength = 6;           
+        
         this.nodeIdLeft = this.options.CustomOptions['nodeIdLeft'];   
         this.nodeIdRight = this.options.CustomOptions['nodeIdRight'];   
         this.popOut = {};
         this.hiddenNodes = [];
+        this.layoutsByNodeId = {};
         this.getPopOutList(this.options.CustomOptions['popOutList']);
         this.getHiddenNodeList(this.options.CustomOptions['hidden-nodes']);
     };
@@ -65,7 +70,23 @@
         }
     };
 
-
+    cwLayoutTree.prototype.getItemDisplayString = function(item){
+        var l, getDisplayStringFromLayout = function(layout){
+            return layout.displayProperty.getDisplayString(item);
+        };
+        if (item.nodeID === this.nodeID){
+            return this.displayProperty.getDisplayString(item);
+        }
+        if (!this.layoutsByNodeId.hasOwnProperty(item.nodeID)){
+            if (this.viewSchema.NodesByID.hasOwnProperty(item.nodeID)){
+                var layoutOptions = this.viewSchema.NodesByID[item.nodeID].LayoutOptions;
+                this.layoutsByNodeId[item.nodeID] = new cwApi.cwLayouts[item.layoutName](layoutOptions, this.viewSchema);
+            } else {
+                return item.name;
+            }
+        }
+        return getDisplayStringFromLayout(this.layoutsByNodeId[item.nodeID]);
+    };
 
     cwLayoutTree.prototype.drawAssociations = function (output, associationTitleText, object) {
         var depth = 0;
@@ -98,18 +119,18 @@
                         "direction":"upward",
                         "title": titleNodeLeft,
                         "name": "origin",
-                        "children":this.simplify("upward",depth + 1,object.associations[this.nodeID],this.nodeIdRight) 
+                        "children":this.simplify("upward",depth + 1,object.associations[this.nodeID],null,this.nodeIdRight) 
                     },
                     "downward": {
                         "direction":"downward",
                         "title": titleNodeRight,
                         "name": "origin",
-                        "children":this.simplify("downward",depth + 1,object.associations[this.nodeID],this.nodeIdLeft) 
+                        "children":this.simplify("downward",depth + 1,object.associations[this.nodeID],null,this.nodeIdLeft) 
                     }
                 };               
             }     
         } else {
-            this.title = object.name;
+            this.title = this.getItemDisplayString(object);
             var child = this.viewSchema.NodesByID[this.viewSchema.RootNodesId[0]].SortedChildren;
             
             if(this.nodeIdLeft === "") {
@@ -188,12 +209,12 @@
                         childrenArray = uniqueArrayJSON(childrenArray.concat(this.simplify(direction,depth,nextChild,nextFilter)));
                     } else {
                         element = {}; 
-                        element.name = this.multiLine(nextChild.name,this.multiLineCount);
+                        element.name = this.getItemDisplayString(nextChild);
                         element.object_id = nextChild.object_id;
                         element.objectTypeScriptName = nextChild.objectTypeScriptName;
 
-                        if(this.maxLength.hasOwnProperty(depth)) {
-                            this.maxLength[direction][depth] = Math.max(this.maxLength[depth],element.name.length);                            
+                        if(this.maxLength.hasOwnProperty(direction) && this.maxLength[direction].hasOwnProperty(depth)) {
+                            this.maxLength[direction][depth] = Math.max(this.maxLength[direction][depth],element.name.length);                            
                         } else {
                             this.maxLength[direction][depth] = element.name.length;
                         }
@@ -283,7 +304,7 @@
         var container = document.getElementById("cwLayoutTree_" + this.nodeID);
         container.addEventListener('openObjectPage', this.openObjectPage.bind(this));  
         container.addEventListener('openPopOut', this.openPopOut.bind(this)); 
-        this.tree.drawChart(this.simplifiedJson,container,this.title,this.maxLength,menuActions);
+        this.tree.drawChart(this.simplifiedJson,container,this.title,this.maxLength,menuActions,this.linkLength);
 
     };
 
