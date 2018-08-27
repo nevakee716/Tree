@@ -1,11 +1,12 @@
 # Tree Layout
 
-| Name             | Status  | Stable | Work but need more test | Nightly | Updated by        |
-|------------------|---------|--------|-------------------------|---------|-------------------|
-| Tree Layout      | Version | x      | 1.2                     | 1.x     | Mathias PFAUWADEL |
+| Name             | Version | Updated by        |
+|------------------|---------|-------------------|
+| Tree Layout      | 1.4     | Mathias PFAUWADEL |
 
 ## Patch Notes
 
+* 1.4 : Custom Display String Support
 * 1.3 : You use the layout in 
 * 1.0 : 1st version working
 
@@ -13,7 +14,7 @@
 
 * SearchText Box
 * More Options
-* Custom Display String Support
+* 
 
 
 ## Description:
@@ -40,9 +41,15 @@ Set the ID of the nodes you don't want to appear in the tree, the children will 
 
 List the popOut that you want to be used. (ex:scriptname1,popName1#scriptname2,popName2)
 
-### Horizontal Spacing : 
+### Horizontal Spacing factor: 
 
-Usually 150 is a good value
+Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree
+Usually 6 is a good value
+
+### Horizontal Offset : 
+
+Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree
+Usually 20 is a good value
 
 ### Right Branch Node ID : (mandatory)
 
@@ -58,13 +65,6 @@ The nodeID of the left branch
 ## Configuration
 
 <img src="https://raw.githubusercontent.com/nevakee716/Tree/master/screen/2.png" alt="Drawing" style="width: 95%;"/>
-
-
-
-
-## Custom Display String
-
-Not Supported Yet, It only display name
 
 
 
