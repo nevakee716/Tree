@@ -30,7 +30,7 @@
         this.maxLength.upward = {} ; 
         if(this.options.CustomOptions['horizontalOffset']) this.maxLength.offset = this.options.CustomOptions['horizontalOffset'];
         else this.maxLength.offset = 20;    
-        if(this.options.CustomOptions['horizontalSpacingFactor']) this.maxLength.offset = this.options.CustomOptions['horizontalSpacingFactor'];
+        if(this.options.CustomOptions['horizontalSpacingFactor']) this.linkLength = this.options.CustomOptions['horizontalSpacingFactor'];
         else this.linkLength = 6;           
         
         this.nodeIdLeft = this.options.CustomOptions['nodeIdLeft'];   
