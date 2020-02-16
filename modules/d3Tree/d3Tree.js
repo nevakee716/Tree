@@ -72,7 +72,7 @@
     var container = this.container;
     var height = window.innerHeight - container.getBoundingClientRect().top;
     var c = document.getElementsByClassName("page-content")[0];
-    var width = c.clientWidth;
+    var width = c.clientWidth - 70;
     // This will be the maximum dimensions
     treeConfig.chartWidth = width - treeConfig.margin.right - treeConfig.margin.left;
     treeConfig.chartHeight = height - treeConfig.margin.top - treeConfig.margin.bottom;
@@ -230,6 +230,7 @@
         .on("contextmenu", d3.contextMenu(self.menu));
       nodeEnter.append("circle").attr("r", 1e-6);
       // Add Text stylings for node main texts
+
       let nodeText = nodeEnter.append("text");
       nodeText
         .attr("x", function(d) {
