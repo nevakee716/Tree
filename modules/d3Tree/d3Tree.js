@@ -71,7 +71,8 @@
     };
     var container = this.container;
     var height = window.innerHeight - container.getBoundingClientRect().top;
-    var width = container.clientWidth;
+    var c = document.getElementsByClassName("page-content")[0];
+    var width = c.clientWidth;
     // This will be the maximum dimensions
     treeConfig.chartWidth = width - treeConfig.margin.right - treeConfig.margin.left;
     treeConfig.chartHeight = height - treeConfig.margin.top - treeConfig.margin.bottom;
