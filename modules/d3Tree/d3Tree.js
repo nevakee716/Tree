@@ -1,11 +1,11 @@
 /* Copyright (c) 2012-2013 Casewise Systems Ltd (UK) - All rights reserved */
 /*global jQuery http: //bl.ocks.org/shunpochang/66620bad0e6b201f261c*/
-(function(cwApi, $) {
+(function (cwApi, $) {
   /**
    * Initialize tree chart object and data loading.
    * @param {Object} d3Object Object for d3, injection used for testing.
    */
-  var treeD3JS = function(d3Object) {
+  var treeD3JS = function (d3Object) {
     this.d3 = d3Object;
     // Initialize the direction texts.
     this.directions = [];
@@ -14,15 +14,15 @@
   /**
    * Set variable and draw chart.
    */
-  treeD3JS.prototype.drawChart = function(jsonObject, container, title, maxLength, menuActions, linkLength) {
+  treeD3JS.prototype.drawChart = function (jsonObject, container, title, maxLength, menuActions, linkLength) {
     var self = this;
     this.menu = [];
     for (var iAction in menuActions)
-      (function(iAction) {
+      (function (iAction) {
         var eventName = menuActions[iAction].eventName;
         var menu = {
           title: menuActions[iAction].title,
-          action: function(elm, d, i) {
+          action: function (elm, d, i) {
             var newEvent = document.createEvent("Event");
             var data = {};
             data.elm = elm;
@@ -49,7 +49,7 @@
     this.treeData = {};
     this.container = container;
     var self = this;
-    self.directions.forEach(function(direction) {
+    self.directions.forEach(function (direction) {
       self.treeData[direction] = jsonObject[direction];
     });
     self.graphTree(self.getTreeConfig(linkLength));
@@ -60,7 +60,7 @@
    * @return {Object} treeConfig Object containing tree dimension size
    *     and central point location.
    */
-  treeD3JS.prototype.getTreeConfig = function(linkLength) {
+  treeD3JS.prototype.getTreeConfig = function (linkLength) {
     var treeConfig = {
       margin: {
         top: 10,
@@ -70,9 +70,10 @@
       },
     };
     var container = this.container;
+
+    var zone = document.getElementsByClassName("cw-zone")[0];
     var height = window.innerHeight - container.getBoundingClientRect().top;
-    var c = document.getElementsByClassName("page-content")[0];
-    var width = c.clientWidth - 70;
+    var width = zone.clientWidth;
     // This will be the maximum dimensions
     treeConfig.chartWidth = width - treeConfig.margin.right - treeConfig.margin.left;
     treeConfig.chartHeight = height - treeConfig.margin.top - treeConfig.margin.bottom;
@@ -88,7 +89,7 @@
    * @param {Object} config Object for chart dimension and central location.
    */
 
-  treeD3JS.prototype.graphTree = function(config) {
+  treeD3JS.prototype.graphTree = function (config) {
     var self = this;
     var d3 = this.d3;
     var linkLength = config.linkLength;
@@ -97,20 +98,38 @@
     var id = 0;
 
     var diagonal = function link(d) {
-      return "M" + d.source.y + "," + d.source.x + "C" + (d.source.y + d.target.y) / 2 + "," + d.source.x + " " + (d.source.y + d.target.y) / 2 + "," + d.target.x + " " + d.target.y + "," + d.target.x;
+      return (
+        "M" +
+        d.source.y +
+        "," +
+        d.source.x +
+        "C" +
+        (d.source.y + d.target.y) / 2 +
+        "," +
+        d.source.x +
+        " " +
+        (d.source.y + d.target.y) / 2 +
+        "," +
+        d.target.x +
+        " " +
+        d.target.y +
+        "," +
+        d.target.x
+      );
     };
-    var zoom = d3
-      .zoom()
-      .scaleExtent([0.1, 2])
-      .on("zoom", redraw);
+
+    var zoom = d3.zoom().scaleExtent([0.1, 2]).on("zoom", redraw);
+
     var svg = d3
       .select(this.container)
       .append("svg")
       .attr("width", "100%")
       .attr("height", config.chartHeight + config.margin.top + config.margin.bottom)
+      //  .attr("transform", "translate(".concat(initialTranslate[0], ", ").concat(initialTranslate[1], ")scale(").concat(initialScale, ")"))
       //.on('mousedown', disableRightClick)
       .call(zoom)
       .on("dblclick.zoom", null);
+
     var treeG = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")");
     treeG
       .append("text")
@@ -179,7 +198,7 @@
 
       var originIsPresent = false;
       // Normalize for fixed-depth.
-      nodes.forEach(function(d) {
+      nodes.forEach(function (d) {
         if (originIsPresent) {
           d.x = d.x + config.centralHeight;
           if (forUpward) {
@@ -211,7 +230,7 @@
       });
 
       // Update the node.
-      var node = g.selectAll("g." + node_class).data(nodes, function(d) {
+      var node = g.selectAll("g." + node_class).data(nodes, function (d) {
         return d.id || (d.id = ++id);
       });
 
@@ -220,27 +239,26 @@
         .enter()
         .append("g")
         .attr("class", node_class)
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + source.y0 + "," + source.x0 + ")";
         })
-        .style("cursor", function(d) {
+        .style("cursor", function (d) {
           return d.children || d._children ? "pointer" : "";
         })
         .on("click", click)
         .on("contextmenu", d3.contextMenu(self.menu));
       nodeEnter.append("circle").attr("r", 1e-6);
       // Add Text stylings for node main texts
-
       let nodeText = nodeEnter.append("text");
       nodeText
-        .attr("x", function(d) {
+        .attr("x", function (d) {
           return forUpward ? -10 : 10;
         })
         .attr("dy", ".35em")
-        .attr("text-anchor", function(d) {
+        .attr("text-anchor", function (d) {
           return forUpward ? "end" : "start";
         });
-      nodeText.text(function(d) {
+      nodeText.text(function (d) {
         // Text for origin node.
         if (d.data.name == "origin") {
           return d.data.title;
@@ -251,7 +269,7 @@
       try {
         nodeText.style({
           "fill-opacity": 1e-6,
-          fill: function(d) {
+          fill: function (d) {
             if (d.data.name == "origin") {
               return nodeColor;
             }
@@ -264,25 +282,25 @@
         .merge(nodeEnter)
         .transition()
         .duration(duration)
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + d.y + "," + d.x + ")";
         });
       nodeUpdate
         .select("circle")
         .attr("r", 6)
-        .style("fill", function(d) {
+        .style("fill", function (d) {
           if (d._children || d.children) {
             return nodeColor;
           }
         })
-        .style("fill-opacity", function(d) {
+        .style("fill-opacity", function (d) {
           if (d.children) {
             return 0.35;
           }
         })
         // Setting summary node style as class as mass style setting is
         // not compatible to circles.
-        .style("stroke-width", function(d) {
+        .style("stroke-width", function (d) {
           if (d.repeated) {
             return 5;
           }
@@ -295,7 +313,7 @@
         .exit()
         .transition()
         .duration(duration)
-        .attr("transform", function(d) {
+        .attr("transform", function (d) {
           return "translate(" + source.y + "," + source.x + ")";
         })
         .remove();
@@ -303,7 +321,7 @@
       nodeExit.select("text").style("fill-opacity", 1e-6);
 
       // Update the links.
-      var link = g.selectAll("path." + link_class).data(links, function(d) {
+      var link = g.selectAll("path." + link_class).data(links, function (d) {
         return d.target.id;
       });
 
@@ -312,7 +330,7 @@
         .enter()
         .insert("path", "g")
         .attr("class", link_class)
-        .attr("d", function(d) {
+        .attr("d", function (d) {
           var o = {
             x: source.x0,
             y: source.y0,
@@ -323,17 +341,13 @@
           });
         });
       // Transition links to their new position.
-      link
-        .merge(linkEnter)
-        .transition()
-        .duration(duration)
-        .attr("d", diagonal);
+      link.merge(linkEnter).transition().duration(duration).attr("d", diagonal);
       // Transition exiting nodes to the parent's new position.
       link
         .exit()
         .transition()
         .duration(duration)
-        .attr("d", function(d) {
+        .attr("d", function (d) {
           var o = {
             x: source.x,
             y: source.y,
@@ -345,7 +359,7 @@
         })
         .remove();
       // Stash the old positions for transition.
-      nodes.forEach(function(d) {
+      nodes.forEach(function (d) {
         d.x0 = d.x;
         d.y0 = d.y;
       });
@@ -400,7 +414,17 @@
     function redraw() {
       if (!this.initDrag && false) {
         this.initDrag = true;
-        treeG.attr("transform", "translate(" + (config.centralWidth * 2 + d3.event.transform.x) + "," + (d3.event.transform.y - 100) + ")" + " scale(" + d3.event.transform.k + ")");
+        treeG.attr(
+          "transform",
+          "translate(" +
+            (config.centralWidth * 2 + d3.event.transform.x) +
+            "," +
+            (d3.event.transform.y - 100) +
+            ")" +
+            " scale(" +
+            d3.event.transform.k +
+            ")"
+        );
       } else {
         treeG.attr("transform", "translate(" + [d3.event.transform.x, d3.event.transform.y] + ")" + " scale(" + d3.event.transform.k + ")");
       }

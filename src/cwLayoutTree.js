@@ -1,10 +1,10 @@
 /* Copyright (c) 2012-2013 Casewise Systems Ltd (UK) - All rights reserved */
 
 /*global cwAPI, jQuery */
-(function(cwApi, $) {
+(function (cwApi, $) {
   "use strict";
 
-  var uniqueArrayJSON = function(array) {
+  var uniqueArrayJSON = function (array) {
     var a = array.concat();
     for (var i = 0; i < a.length; ++i) {
       for (var j = i + 1; j < a.length; ++j) {
@@ -18,7 +18,7 @@
   };
 
   // constructor
-  var cwLayoutTree = function(options, viewSchema) {
+  var cwLayoutTree = function (options, viewSchema) {
     cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema);
     cwApi.registerLayoutForJSActions(this);
     this.multiLineCount = this.options.CustomOptions["multiLineCount"];
@@ -40,7 +40,7 @@
     this.getHiddenNodeList(this.options.CustomOptions["hidden-nodes"]);
   };
 
-  cwLayoutTree.prototype.getPopOutList = function(options) {
+  cwLayoutTree.prototype.getPopOutList = function (options) {
     if (options) {
       var optionList = options.split("#");
       var optionSplit;
@@ -54,7 +54,7 @@
     }
   };
 
-  cwLayoutTree.prototype.getHiddenNodeList = function(options) {
+  cwLayoutTree.prototype.getHiddenNodeList = function (options) {
     if (options) {
       var optionList = options.split(",");
       var optionSplit;
@@ -66,9 +66,9 @@
     }
   };
 
-  cwLayoutTree.prototype.getItemDisplayString = function(item) {
+  cwLayoutTree.prototype.getItemDisplayString = function (item) {
     var l,
-      getDisplayStringFromLayout = function(layout) {
+      getDisplayStringFromLayout = function (layout) {
         return layout.displayProperty.getDisplayString(item);
       };
     if (item.nodeID === this.nodeID) {
@@ -85,14 +85,14 @@
     return getDisplayStringFromLayout(this.layoutsByNodeId[item.nodeID]);
   };
 
-  cwLayoutTree.prototype.drawAssociations = function(output, associationTitleText, object) {
+  cwLayoutTree.prototype.drawAssociations = function (output, associationTitleText, object) {
     var depth = 0;
     var titleNodeRight, titleNodeLeft;
+    var copyObject = $.extend(true, {}, object);
     this.originalObject = object;
     output.push('<div class="cwLayoutTree" id="cwLayoutTree_' + this.nodeID + '"></div>');
     if (cwAPI.isIndexPage()) {
       this.title = this.mmNode.NodeName;
-      var child = this.viewSchema.NodesByID[this.nodeIdRight].SortedChildren;
       if (this.nodeIdLeft === "") {
         titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
         this.maxLength["downward"][0] = titleNodeRight.length;
@@ -101,7 +101,7 @@
             direction: "downward",
             title: titleNodeRight,
             name: "origin",
-            children: this.simplify("downward", depth + 1, object.associations[this.nodeID]),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID]),
           },
         };
       } else if (this.nodeIdLeft !== "" && this.nodeIdRight !== "") {
@@ -116,18 +116,18 @@
             direction: "upward",
             title: titleNodeLeft,
             name: "origin",
-            children: this.simplify("upward", depth + 1, object.associations[this.nodeID], null, this.nodeIdRight),
+            children: this.simplify("upward", depth + 1, copyObject.associations[this.nodeID], null, this.nodeIdRight),
           },
           downward: {
             direction: "downward",
             title: titleNodeRight,
             name: "origin",
-            children: this.simplify("downward", depth + 1, object.associations[this.nodeID], null, this.nodeIdLeft),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID], null, this.nodeIdLeft),
           },
         };
       }
     } else {
-      this.title = this.getItemDisplayString(object);
+      this.title = this.getItemDisplayString(copyObject);
       var child = this.viewSchema.NodesByID[this.viewSchema.RootNodesId[0]].SortedChildren;
 
       if (this.nodeIdLeft === "") {
@@ -138,7 +138,7 @@
             direction: "downward",
             title: this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
             name: "origin",
-            children: this.simplify("downward", depth + 1, object.associations[this.nodeIdRight]),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeIdRight]),
           },
         };
       } else if (this.nodeIdRight !== "" && this.nodeIdLeft !== "") {
@@ -153,20 +153,20 @@
             direction: "upward",
             title: this.viewSchema.NodesByID[this.nodeIdLeft].NodeName,
             name: "origin",
-            children: this.simplify("upward", depth + 1, object.associations[this.nodeIdLeft]),
+            children: this.simplify("upward", depth + 1, copyObject.associations[this.nodeIdLeft]),
           },
           downward: {
             direction: "downward",
             title: this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
             name: "origin",
-            children: this.simplify("downward", depth + 1, object.associations[this.nodeIdRight]),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeIdRight]),
           },
         };
       }
     }
   };
 
-  cwLayoutTree.prototype.multiLine = function(name, size) {
+  cwLayoutTree.prototype.multiLine = function (name, size) {
     if (size !== "" && size > 0) {
       var nameSplit = name.split(" ");
       var carry = 0;
@@ -188,7 +188,7 @@
     }
   };
 
-  cwLayoutTree.prototype.simplify = function(direction, depth, child, filter, nextFilter) {
+  cwLayoutTree.prototype.simplify = function (direction, depth, child, filter, nextFilter) {
     var childrenArray = [];
     var element;
     var nextChild;
@@ -222,7 +222,7 @@
     return childrenArray;
   };
 
-  cwLayoutTree.prototype.lookForObjects = function(id, scriptname, child) {
+  cwLayoutTree.prototype.lookForObjects = function (id, scriptname, child) {
     var childrenArray = [];
     var element;
     var nextChild;
@@ -243,7 +243,7 @@
     return null;
   };
 
-  cwLayoutTree.prototype.applyJavaScript = function() {
+  cwLayoutTree.prototype.applyJavaScript = function () {
     var that = this;
     var libToLoad = [];
 
@@ -251,11 +251,11 @@
       that.createTree();
     } else {
       // AsyncLoad
-      cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3/d3.min.js"], function(error) {
+      cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3/d3.min.js"], function (error) {
         if (error === null) {
-          cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Menu/d3Menu.min.js"], function(error) {
+          cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Menu/d3Menu.min.js"], function (error) {
             if (error === null) {
-              cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Tree/d3Tree.min.js"], function(error) {
+              cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Tree/d3Tree.min.js"], function (error) {
                 if (error === null) {
                   that.createTree();
                 } else {
@@ -271,7 +271,7 @@
     }
   };
 
-  cwLayoutTree.prototype.createTree = function() {
+  cwLayoutTree.prototype.createTree = function () {
     this.tree = new cwApi.customLibs.cwD3Tree(d3);
 
     var menuActions = [];
@@ -290,7 +290,7 @@
     this.tree.drawChart(this.simplifiedJson, container, this.title, this.maxLength, menuActions, this.linkLength);
   };
 
-  cwLayoutTree.prototype.openObjectPage = function(event) {
+  cwLayoutTree.prototype.openObjectPage = function (event) {
     var id = event.data.d.object_id;
     var scriptname = event.data.d.objectTypeScriptName;
     var object = this.lookForObjects(id, scriptname, this.originalObject);
@@ -299,7 +299,7 @@
     }
   };
 
-  cwLayoutTree.prototype.openPopOut = function(event) {
+  cwLayoutTree.prototype.openPopOut = function (event) {
     var id = event.data.d.object_id;
     var scriptname = event.data.d.objectTypeScriptName;
 
