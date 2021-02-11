@@ -72,7 +72,7 @@
     var container = this.container;
 
     var zone = document.getElementsByClassName("cw-zone")[0];
-    var height = window.innerHeight - container.getBoundingClientRect().top;
+    var height = window.innerHeight - 92 - 1.25 * parseFloat(getComputedStyle(document.documentElement).fontSize);
     var width = zone.clientWidth;
     // This will be the maximum dimensions
     treeConfig.chartWidth = width - treeConfig.margin.right - treeConfig.margin.left;
