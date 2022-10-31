@@ -23,13 +23,14 @@
 }
 .cwLayoutTree .downwardLink {
   fill: none;
-  stroke: #8b4513;
   stroke-width: 3px;
-  opacity: 0.2;
+  opacity: 0.4;
 }
 .cwLayoutTree .upwardLink {
   fill: none;
-  stroke: #37592b;
   stroke-width: 3px;
-  opacity: 0.2;
+  opacity: 0.4;
+}
+.cwLayoutTree foreignObject {
+  overflow: inherit;
 }

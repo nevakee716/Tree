@@ -5,16 +5,21 @@
    * Initialize tree chart object and data loading.
    * @param {Object} d3Object Object for d3, injection used for testing.
    */
-  var treeD3JS = function (d3Object) {
+  var treeD3JS = function (d3Object, config) {
     this.d3 = d3Object;
     // Initialize the direction texts.
     this.directions = [];
     this.initDrag = false;
+    this.config = config;
   };
+
+  var fa_size = 15;
+  var diagramFactor = 5;
+  var centerOffset = 40;
   /**
    * Set variable and draw chart.
    */
-  treeD3JS.prototype.drawChart = function (jsonObject, container, title, maxLength, menuActions, linkLength) {
+  treeD3JS.prototype.drawChart = function (jsonObject, container, element, maxLength, menuActions, linkLength) {
     var self = this;
     this.menu = [];
     for (var iAction in menuActions)
@@ -45,7 +50,8 @@
 
     // First get tree data for both directions.
     this.maxLength = maxLength;
-    this.title = title;
+    this.title = element.name;
+    this.centerNode = element;
     this.treeData = {};
     this.container = container;
     var self = this;
@@ -131,13 +137,39 @@
       .on("dblclick.zoom", null);
 
     var treeG = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")");
-    treeG
-      .append("text")
-      .text(this.title)
-      .attr("class", "centralText")
-      .attr("x", config.centralWidth)
-      .attr("y", config.centralHeight + 40)
-      .attr("text-anchor", "middle");
+
+    if (this.centerNode.image) {
+      treeG
+        .append("image")
+        .attr("xlink:href", (d) => this.centerNode.image)
+        .attr("x", (d) => {
+          return config.centralWidth - (this.centerNode.size.Width * diagramFactor * 1.5) / 2 - 5;
+        })
+        .attr("y", (d) => config.centralHeight - (this.centerNode.size.Height * diagramFactor * 1.5) / 2)
+        .attr("width", (d) => this.centerNode.size.Width * diagramFactor * 1.5)
+        .attr("height", (d) => this.centerNode.size.Height * diagramFactor * 1.5);
+    } else if (this.centerNode.faIcon) {
+      treeG
+        .append("svg:foreignObject")
+        .attr("x", `-${fa_size}`)
+        .attr("y", `-${fa_size}`)
+        .html(
+          (d) =>
+            `<i style="font-size:${fa_size * 2}px; color:${this.centerNode.faIcon.color}" class="${
+              this.centerNode.faIcon.icon
+            }" aria-hidden="true"></i>`
+        );
+    } else {
+      treeG
+        .append("text")
+        .text(this.title)
+        .attr("class", "centralText")
+        .attr("x", config.centralWidth)
+        .attr("y", config.centralHeight + 40)
+        .attr("text-anchor", "middle");
+    }
+    treeG;
+
     // Initialize the tree nodes and update chart.
     for (var d in this.directions) {
       var direction = this.directions[d];
@@ -152,6 +184,7 @@
       root.dy = nodeSpace;
       root.x0 = config.centralWidth;
       root.y0 = config.centralHeight;
+      centerOffset = this.centerNode.image ? (this.centerNode.size.Width * diagramFactor) / 1.8 + 5 : 40;
       update(root, data, treeG, this.maxLength);
     }
 
@@ -174,12 +207,21 @@
       // way too many nodes to fit in the screen, while we want a symmetric
       // view for upward chart.
 
-      var tree = d3.tree().nodeSize([nodeSpace, nodeSpace])(source);
-
+      // var tree = d3.tree().nodeSize([Math.max(nodeSpace, maxLength.height * 4), nodeSpace])(source);
+      var tree = d3
+        .tree()
+        .nodeSize([Math.max(nodeSpace, maxLength.height * 4), nodeSpace + centerOffset + 20])
+        .separation((a, b) => {
+          if (a.parent == b.parent) {
+            return 1;
+          } else {
+            return 1.25;
+          }
+        })(source);
       var nodes = tree.descendants(source);
       var links = tree.links(nodes);
       // Offset x-position for downward to view the left most record.
-      var offsetX = 0;
+      var offsetX = 20;
       var centralChild, nextCentralChild;
 
       function isOdd(num) {
@@ -189,10 +231,10 @@
       if (forUpward && originalData.name === "origin" && originalData.children && originalData.children.length !== 0) {
         if (!isOdd(originalData.children.length)) {
           // pair
-          offsetX = 0;
+          offsetX = centerOffset;
         } else {
           centralChild = originalData.children[originalData.children.length / 2 - 0.5]; // impair
-          offsetX = centralChild.x;
+          offsetX = centralChild.x + centerOffset;
         }
       }
 
@@ -209,8 +251,7 @@
         }
 
         // calculate horizontal position
-        var offsetY = downwardSign * 40;
-
+        var offsetY = downwardSign * centerOffset;
         var lenght = 0;
 
         if (d.depth !== 0) {
@@ -220,11 +261,11 @@
         }
 
         d.y = downwardSign * (lenght * linkLength + d.depth * maxLength.offset) + config.centralWidth + offsetY;
-        //d.x = (originIsPresent) ? (d.x - offsetX + config.centralHeight) : (d.x - offsetX);
+
         // Position for origin node.
         if (d.data.name == "origin") {
           originIsPresent = true;
-          d.y = config.centralWidth + downwardSign * 40;
+          d.y = config.centralWidth + downwardSign * centerOffset;
           d.x = config.centralHeight;
         }
       });
@@ -247,23 +288,53 @@
         })
         .on("click", click)
         .on("contextmenu", d3.contextMenu(self.menu));
-      nodeEnter.append("circle").attr("r", 1e-6);
+
+      g.selectAll("g." + node_class)
+        .filter(function (d) {
+          return d.data.image; // filter by single attribute
+        })
+        .append("image")
+        .attr("xlink:href", (d) => d.data.image)
+        .attr("x", (d) => {
+          return downwardSign == -1 ? maxLength.offset - d.data.size.Width * diagramFactor : -maxLength.offset;
+        })
+        .attr("y", (d) => (-d.data.size.Height * diagramFactor) / 2)
+        .attr("width", (d) => d.data.size.Width * diagramFactor)
+        .attr("height", (d) => d.data.size.Height * diagramFactor);
+
+      g.selectAll("g." + node_class)
+        .filter(function (d) {
+          return !d.data.faIcon && !d.data.image; // filter by single attribute
+        })
+        .append("circle")
+        .attr("r", 1e-6);
+
+      g.selectAll("g." + node_class)
+        .filter(function (d) {
+          return d.data.faIcon; // filter by single attribute
+        })
+        .append("svg:foreignObject")
+        .attr("x", `-${fa_size}`)
+        .attr("y", `-${fa_size}`)
+        .html((d) => `<i style="font-size:${fa_size * 2}px; color:${d.data.faIcon.color}" class="${d.data.faIcon.icon}" aria-hidden="true"></i>`);
+
       // Add Text stylings for node main texts
       let nodeText = nodeEnter.append("text");
       nodeText
         .attr("x", function (d) {
-          return forUpward ? -10 : 10;
+          return forUpward ? -fa_size - 5 : fa_size + 5;
         })
         .attr("dy", ".35em")
         .attr("text-anchor", function (d) {
           return forUpward ? "end" : "start";
         });
+
       nodeText.text(function (d) {
-        // Text for origin node.
-        if (d.data.name == "origin") {
-          return d.data.title;
-        }
-        // Text for summary nodes.
+        if (d && !d.data.image)
+          if (d.data.name == "origin") {
+            // Text for origin node.
+            return d.data.title;
+          }
         return d.data.name;
       });
       try {
@@ -339,7 +410,28 @@
             source: o,
             target: o,
           });
+        })
+        .style("stroke", (d) => {
+          let color;
+          if (d.target.data.spreadToEdge) {
+            color = d.target.data?.faIcon?.color;
+          }
+          if (d.source.data.spreadToEdge) {
+            color = d.source.data?.faIcon?.color;
+          }
+          return color ?? "#AAA";
+        })
+        .style("stroke-dasharray", (d) => {
+          let dashed;
+          if (d.target.data.dashed) {
+            dashed = 5;
+          }
+          if (d.source.data.dashed) {
+            dashed = 5;
+          }
+          return dashed ?? 0;
         });
+
       // Transition links to their new position.
       link.merge(linkEnter).transition().duration(duration).attr("d", diagonal);
       // Transition exiting nodes to the parent's new position.
