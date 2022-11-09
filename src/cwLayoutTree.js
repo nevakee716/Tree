@@ -350,7 +350,7 @@
         element.image = image;
         element.size = size;
         element.name = new Array(Math.floor(element.size.Width * 0.9)).join(" ");
-        this.maxLength.height = Math.max(this.maxLength.height, element.size.Height);
+
       }
       this.centralElement = element;
       if (this.nodeIdLeft === "") {
