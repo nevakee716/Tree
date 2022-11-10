@@ -31,8 +31,8 @@
 
         cwApi.CwPopout.setContent(self.createExpertModeElement());
         self.setEventForExpertMode();
-        self.selectTab("treeNodes");
-        self.selectTab("treeNodes");
+        self.selectTab("treeGroups");
+        self.selectTab("treeGroups");
         cwApi.CwPopout.onClose(function () {
           self.expertMode = false;
           event.target.title = $.i18n.prop("activate_expert_mode");
@@ -144,7 +144,7 @@
       };
 
       $scope.addGroup = function () {
-        ng.config.propertyMapping.push({ name: "new Group", nodeIDs: [] });
+        $scope.ng.config.propertyMapping.push({ name: "new Group", nodeIDs: [] });
       };
 
       $scope.deleteGroup = function (index) {
@@ -259,33 +259,6 @@
       });
     };
 
-    var tmpsource = [],
-      source = [],
-      self = this;
-    let q = cwApi.getQueryStringObject();
-    let tab = "tab0";
-
-    if (q.cwtabid) tab = q.cwtabid;
-    if (this.viewSchema.Tab && this.viewSchema.Tab.Tabs) {
-      this.viewSchema.Tab.Tabs.forEach(function (t) {
-        if (t.Id === tab) {
-          t.Nodes.forEach(function (n) {
-            source.push(self.nodeIDToFancyTree(self.viewSchema.NodesByID[n]));
-          });
-        }
-      });
-    } else {
-      self.viewSchema.RootNodesId.forEach(function (n) {
-        source.push(self.nodeIDToFancyTree(self.viewSchema.NodesByID[n]));
-      });
-    }
-
-    if (cwApi.isIndexPage() === false) {
-      tmpsource.push(self.nodeIDToFancyTree(self.viewSchema.NodesByID[self.viewSchema.RootNodesId[0]]));
-      tmpsource[0].children = source;
-      source = tmpsource;
-    }
-
     $scope.loadtree = function () {
       // define right click action on the jstree
       function contextMenu(node) {
@@ -351,7 +324,7 @@
         })
         .jstree({
           core: {
-            data: source,
+            data: self.source,
             check_callback: true,
           },
           types: {

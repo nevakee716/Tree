@@ -39,8 +39,45 @@
 
     this.popOut = {};
     this.layoutsByNodeId = {};
+
+    let q = cwApi.getQueryStringObject();
+    let tab = "tab0";
+    let tmpsource = [],
+      source = [];
+    if (q.cwtabid) tab = q.cwtabid;
+    if (this.viewSchema.Tab && this.viewSchema.Tab.Tabs) {
+      this.viewSchema.Tab.Tabs.forEach((t) => {
+        if (t.Id === tab) {
+          t.Nodes.forEach((n) => {
+            source.push(this.nodeIDToFancyTree(viewSchema.NodesByID[n]));
+          });
+        }
+      });
+    } else {
+      this.viewSchema.RootNodesId.forEach((n) => {
+        source.push(this.nodeIDToFancyTree(viewSchema.NodesByID[n]));
+      });
+    }
+
+    if (cwApi.isIndexPage() === false) {
+      tmpsource.push(this.nodeIDToFancyTree(viewSchema.NodesByID[viewSchema.RootNodesId[0]]));
+      tmpsource[0].children = source;
+      source = tmpsource;
+    }
+    this.source = source;
     this.getPopOutList(this.options.CustomOptions["popOutList"]);
-    this.config = JSON.parse(this.options.CustomOptions["config"]);
+    try {
+      this.config = JSON.parse(this.options.CustomOptions["config"]);
+    } catch (e) {
+      this.config = { propertyMapping: [], hiddenNodes: [] };
+      if (source.length > 1) {
+        this.config.nodeIdRight = source[0].NodeID;
+        this.config.nodeIdLeft = source[1]?.NodeID;
+      } else {
+        this.config.nodeIdRight = source[0]?.children[1]?.NodeID ?? "";
+        this.config.nodeIdLeft = source[0]?.children[0]?.NodeID;
+      }
+    }
   };
 
   cwLayoutTree.prototype.getPopOutList = function (options) {
