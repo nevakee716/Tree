@@ -419,14 +419,10 @@
         if (error === null) {
           cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Menu/d3Menu.min.js"], function (error) {
             if (error === null) {
-              cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Tree/d3Tree.min.js"], function (error) {
-                if (error === null) {
-                  cwAPI.siteLoadingPageStart();
-                  that.getDiagramMaterial(() => that.parse());
-                } else {
-                  cwAPI.Log.Error(error);
-                }
-              });
+              cwAPI.siteLoadingPageStart();
+              that.getDiagramMaterial(() => that.parse());
+            } else {
+              cwAPI.Log.Error(error);
             }
           });
         } else {
