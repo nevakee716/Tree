@@ -1,0 +1,83 @@
+<div ng-controller="expertModeNodeConfig cw-diagram-popout-container" class="cw-visible view-container">
+  <div class="cwPropertiesTableHeader CwPropertiesLayoutTableHeader" ng-if="ng.nodeID === undefined && ng.selectedStep === undefined">
+    Please Select a Node or a Step to Configure
+  </div>
+  <div ng-if="ng.selectedNode !== undefined">
+    <div class="cwPropertiesTableHeader CwPropertiesLayoutTableHeader">Node Configuration</div>
+    <div class="cwPropertiesTableContainer">
+      <table class="cwPropertiesTable">
+        <tr>
+          <th>Node ID :</th>
+          <td class="cw-edit-property-value">{{ng.selectedNode.NodeID}}</td>
+        </tr>
+        <tr>
+          <th>Right Node Branch :</th>
+          <td class="cw-edit-property-value">
+            <input
+              class="cw-edit-attr"
+              ng-click="updateRightBranch(ng.selectedNode.NodeID)"
+              ng-checked="ng.config.nodeIdRight == ng.selectedNode.NodeID"
+              type="checkbox"
+              ng-model="ng.rightBox"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Left Node Branch :</th>
+          <td class="cw-edit-property-value">
+            <input
+              class="cw-edit-attr"
+              ng-click="updateLeftBranch(ng.selectedNode.NodeID)"
+              ng-checked="ng.config.nodeIdLeft == ng.selectedNode.NodeID"
+              type="checkbox"
+              ng-model="ng.leftBox"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Hidden Node :</th>
+          <td class="cw-edit-property-value">
+            <input
+              class="cw-edit-attr"
+              ng-model-options="{ debounce: 100 }"
+              ng-click="updateNodeCheck('hiddenNodes',ng.selectedNode.NodeID)"
+              ng-checked="ng.config.hiddenNodes.indexOf(ng.selectedNode.NodeID) !== -1"
+              type="checkbox"
+            />
+          </td>
+        </tr>
+        <tr ng-if="false">
+          <th>Contextual Node:</th>
+          <td class="cw-edit-property-value">
+            <input
+              class="cw-edit-attr"
+              ng-model="ng.config.contextualNodes[ng.selectedNode.NodeID]"
+              ng-model-options="{ debounce: 100 }"
+              ng-change="updateTree()"
+              type="text"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Groups :</th>
+          <td class="cw-edit-property-value">
+            <select
+              class="cw-edit-attr cw-edit-attr-combobox"
+              ng-model="ng.selectedNode.sgroup"
+              ng-change="updateSpecificGroups(ng.selectedNode.sgroup,ng.selectedNode.NodeID)"
+            >
+              <option
+                ng-repeat="group in ng.config.propertyMapping"
+                ng-selected="group.nodeIDs.indexOf(ng.selectedNode.NodeID) !== -1"
+                value="{{group.name}}"
+              >
+                {{group.name}}
+              </option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <pre ng-if="false">{{ng.config |json}}</pre>
+</div>

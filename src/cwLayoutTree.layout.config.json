@@ -1,44 +1,32 @@
 {
-    "Name": "Tree",
-    "DisplayName": "Tree",
-    "Description": "Allow you to display your association in a Tree Map",
-    "JavaScriptClassName": "cwLayoutTree",
-    "Options": [
+  "Name": "Tree",
+  "DisplayName": "Tree",
+  "Description": "Allow you to display your association in a Tree Map",
+  "JavaScriptClassName": "cwLayoutTree",
+  "Options": [
     {
-        "Id": "hidden-nodes",
-        "DisplayName": "Hidden Nodes",
-        "Description": "Use comma as splitter character",
-        "Type": 0
-    },
-	{
-        "Id": "popOutList",
-        "DisplayName": "popOut List",
-        "Description": "list the scriptname of the objectType and the popOut",
-        "Type": 0
+      "Id": "config",
+      "DisplayName": "Config From Expert Mode",
+      "Description": "Use expert mode on Evolve to generate this string",
+      "Type": 0
     },
     {
-        "Id": "horizontalOffset",
-        "DisplayName": "Horizontal Offset",
-        "Description": "Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree, usually 20 is good value",
-        "Type": 0
+      "Id": "popOutList",
+      "DisplayName": "popOut List",
+      "Description": "list the scriptname of the objectType and the popOut",
+      "Type": 0
     },
     {
-        "Id": "horizontalSpacingFactor",
-        "DisplayName": "Horizontal Spacing Factor",
-        "Description": "Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree, usually 6 is good value",
-        "Type": 0
+      "Id": "horizontalOffset",
+      "DisplayName": "Horizontal Offset",
+      "Description": "Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree, usually 20 is good value",
+      "Type": 0
     },
     {
-        "Id": "nodeIdLeft",
-        "DisplayName": "Left Branch Node ID",
-        "Description": "Left Branch Node ID",
-        "Type": 0
-    },
-    {
-        "Id": "nodeIdRight",
-        "DisplayName": "Right Branch Node ID",
-        "Description": "Right Branch Node ID",
-        "Type": 0
+      "Id": "horizontalSpacingFactor",
+      "DisplayName": "Horizontal Spacing Factor",
+      "Description": "Horizontal Spacing Factor * nbr Char + Horizontal Offset = distance between node of the tree, usually 6 is good value",
+      "Type": 0
     }
-    ]
+  ]
 }

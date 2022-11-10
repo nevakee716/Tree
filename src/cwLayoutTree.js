@@ -3,6 +3,16 @@
 /*global cwAPI, jQuery */
 (function (cwApi, $) {
   "use strict";
+  if (cwApi && cwApi.cwLayouts && cwApi.cwLayouts.cwLayoutTree) {
+    var cwLayoutTree = cwApi.cwLayouts.cwLayoutTree;
+  } else {
+    // constructor
+    var cwLayoutTree = function (options, viewSchema) {
+      cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema); // heritage
+      cwApi.registerLayoutForJSActions(this); // execute le applyJavaScript après drawAssociations
+      this.construct(options, viewSchema);
+    };
+  }
 
   var uniqueArrayJSON = function (array) {
     var a = array.concat();
@@ -18,9 +28,7 @@
   };
 
   // constructor
-  var cwLayoutTree = function (options, viewSchema) {
-    cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema);
-    cwApi.registerLayoutForJSActions(this);
+  cwLayoutTree.prototype.construct = function (options, viewSchema) {
     this.multiLineCount = this.options.CustomOptions["multiLineCount"];
     this.multiLineCount = 5;
     this.maxLength = { downward: {}, upward: {}, height: 0 };
@@ -29,40 +37,10 @@
     if (this.options.CustomOptions["horizontalSpacingFactor"] !== "") this.linkLength = this.options.CustomOptions["horizontalSpacingFactor"];
     else this.linkLength = 6;
 
-    this.nodeIdLeft = this.options.CustomOptions["nodeIdLeft"];
-    this.nodeIdRight = this.options.CustomOptions["nodeIdRight"];
     this.popOut = {};
-    this.hiddenNodes = [];
     this.layoutsByNodeId = {};
     this.getPopOutList(this.options.CustomOptions["popOutList"]);
-    this.getHiddenNodeList(this.options.CustomOptions["hidden-nodes"]);
-
-    this.config = {
-      propertyMapping: [
-        {
-          nodeIDs: [
-            "application_112035537",
-            "application_20006_436289450",
-            "application_20005_1682483191",
-            "application_20005_1662967471",
-            "application_20006_854631296",
-          ],
-          templateDiagram: 55,
-        },
-        {
-          nodeIDs: ["flux_20006_1810314472", "flux_20005_1315828592"],
-          propertyMapping: "type",
-          spreadToEdge: false,
-          dashed: true,
-        },
-        {
-          nodeIDs: ["flux_20006_1494133796", "flux_20005_1589945448"],
-          propertyMapping: "type",
-          spreadToEdge: true,
-          dashed: false,
-        },
-      ],
-    };
+    this.config = JSON.parse(this.options.CustomOptions["config"]);
   };
 
   cwLayoutTree.prototype.getPopOutList = function (options) {
@@ -74,18 +52,6 @@
         if (optionList[i] !== "") {
           var optionSplit = optionList[i].split(",");
           this.popOut[optionSplit[0]] = optionSplit[1];
-        }
-      }
-    }
-  };
-
-  cwLayoutTree.prototype.getHiddenNodeList = function (options) {
-    if (options) {
-      var optionList = options.split(",");
-      var optionSplit;
-      for (var i = 0; i < optionList.length; i += 1) {
-        if (optionList[i] !== "") {
-          this.hiddenNodes.push(optionList[i]);
         }
       }
     }
@@ -192,8 +158,17 @@
 
   cwLayoutTree.prototype.drawAssociations = function (output, associationTitleText, object) {
     this.originalObject = object;
-
-    output.push('<div class="cwLayoutTree" id="cwLayoutTree_' + this.nodeID + '"></div>');
+    output.push('<div class="cwLayoutTree" id="cwLayoutTreeWrapper_' + this.nodeID + '">');
+    if (cwApi.currentUser.PowerLevel === 1) {
+      output.push(
+        '<a class="btn page-action no-text fa fa-cogs " class="cwLayoutTreeExpertModeButton" id="cwLayoutTreeExpertMode' +
+          this.nodeID +
+          '" title="' +
+          $.i18n.prop("expertMode") +
+          '"></a>'
+      );
+    }
+    output.push('<div class="cwLayoutTreeD3Tree" id="cwLayoutTree_' + this.nodeID + '"></div></div>');
   };
 
   cwLayoutTree.prototype.multiLine = function (name, size) {
@@ -232,7 +207,7 @@
       if (child.associations.hasOwnProperty(associationNode) && associationNode !== filter) {
         for (var i = 0; i < child.associations[associationNode].length; i += 1) {
           nextChild = child.associations[associationNode][i];
-          if (this.hiddenNodes.indexOf(associationNode) !== -1) {
+          if (this.config.hiddenNodes.indexOf(associationNode) !== -1) {
             childrenArray = uniqueArrayJSON(childrenArray.concat(this.simplify(direction, depth, nextChild, nextFilter)));
           } else {
             element = {};
@@ -300,8 +275,8 @@
 
     if (cwAPI.isIndexPage()) {
       this.title = this.mmNode.NodeName;
-      if (this.nodeIdLeft === "") {
-        titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
+      if (this.config.nodeIdLeft === "") {
+        titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
         this.maxLength["downward"][0] = titleNodeRight.length;
         this.simplifiedJson = {
           downward: {
@@ -311,9 +286,9 @@
             children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID]),
           },
         };
-      } else if (this.nodeIdLeft !== "" && this.nodeIdRight !== "") {
-        titleNodeLeft = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
-        titleNodeRight = this.viewSchema.NodesByID[this.nodeIdLeft].NodeName;
+      } else if (this.config.nodeIdLeft !== "" && this.config.nodeIdRight !== "") {
+        titleNodeLeft = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
+        titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdLeft].NodeName;
 
         this.maxLength["downward"][0] = titleNodeRight.length;
         this.maxLength["upward"][0] = titleNodeLeft.length;
@@ -323,13 +298,13 @@
             direction: "upward",
             title: titleNodeLeft,
             name: "origin",
-            children: this.simplify("upward", depth + 1, copyObject.associations[this.nodeID], null, this.nodeIdRight),
+            children: this.simplify("upward", depth + 1, copyObject.associations[this.nodeID], null, this.config.nodeIdRight),
           },
           downward: {
             direction: "downward",
             title: titleNodeRight,
             name: "origin",
-            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID], null, this.nodeIdLeft),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID], null, this.config.nodeIdLeft),
           },
         };
       }
@@ -350,23 +325,22 @@
         element.image = image;
         element.size = size;
         element.name = new Array(Math.floor(element.size.Width * 0.9)).join(" ");
-
       }
       this.centralElement = element;
-      if (this.nodeIdLeft === "") {
-        titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
+      if (this.config.nodeIdLeft === "") {
+        titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
         this.maxLength.downward[0] = titleNodeRight.length;
         this.simplifiedJson = {
           downward: {
             direction: "downward",
-            title: this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
+            title: this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName,
             name: "origin",
-            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeIdRight]),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.config.nodeIdRight]),
           },
         };
-      } else if (this.nodeIdRight !== "" && this.nodeIdLeft !== "") {
-        titleNodeLeft = this.viewSchema.NodesByID[this.nodeIdLeft].NodeName;
-        titleNodeRight = this.viewSchema.NodesByID[this.nodeIdRight].NodeName;
+      } else if (this.config.nodeIdRight !== "" && this.config.nodeIdLeft !== "") {
+        titleNodeLeft = this.viewSchema.NodesByID[this.config.nodeIdLeft].NodeName;
+        titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
 
         this.maxLength.downward[0] = titleNodeRight.length;
         this.maxLength.upward[0] = titleNodeLeft.length;
@@ -374,15 +348,15 @@
         this.simplifiedJson = {
           upward: {
             direction: "upward",
-            title: this.viewSchema.NodesByID[this.nodeIdLeft].NodeName,
+            title: this.viewSchema.NodesByID[this.config.nodeIdLeft].NodeName,
             name: "origin",
-            children: this.simplify("upward", depth + 1, copyObject.associations[this.nodeIdLeft]),
+            children: this.simplify("upward", depth + 1, copyObject.associations[this.config.nodeIdLeft]),
           },
           downward: {
             direction: "downward",
-            title: this.viewSchema.NodesByID[this.nodeIdRight].NodeName,
+            title: this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName,
             name: "origin",
-            children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeIdRight]),
+            children: this.simplify("downward", depth + 1, copyObject.associations[this.config.nodeIdRight]),
           },
         };
       }
@@ -393,6 +367,12 @@
   cwLayoutTree.prototype.applyJavaScript = function () {
     var that = this;
     var libToLoad = [];
+
+    var expertModeButton = document.getElementById("cwLayoutTreeExpertMode" + this.nodeID);
+    if (expertModeButton) {
+      expertModeButton.onclick = null;
+      expertModeButton.onclick = this.manageExpertModeButton.bind(this);
+    }
 
     if (cwAPI.isDebugMode() === true) {
       that.getDiagramMaterial(() => that.parse());
@@ -420,6 +400,7 @@
   };
 
   cwLayoutTree.prototype.createTree = function () {
+    console.log("Creating Tree ....");
     this.tree = new cwApi.customLibs.cwD3Tree(d3, this.config);
     cwAPI.siteLoadingPageFinish();
     var menuActions = [];
@@ -437,6 +418,14 @@
     menuActions.push(menuAction3);
 
     var container = document.getElementById("cwLayoutTree_" + this.nodeID);
+    container.remove();
+
+    var wrapper = document.getElementById("cwLayoutTreeWrapper_" + this.nodeID);
+    container = document.createElement("div");
+    container.className = "cwLayoutTreeD3Tree";
+    container.id = "cwLayoutTree_" + this.nodeID;
+
+    wrapper.append(container);
     container.addEventListener("openObjectPage", this.openObjectPage.bind(this));
     container.addEventListener("openPopOut", this.openPopOut.bind(this));
     container.addEventListener("openObjectPageNewTab", this.openObjectPageNewTab.bind(this));

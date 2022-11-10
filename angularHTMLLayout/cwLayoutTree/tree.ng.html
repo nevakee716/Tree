@@ -1,0 +1,83 @@
+<div ng-controller="expertModeNodeConfig cw-diagram-popout-container" class="cw-visible view-container">
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('ui')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.ui" />
+    </div>
+  </div>
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('height')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input ng-model-options="{ debounce: 100 }" ng-change="updateTree()" ng-model="ng.config.height" />
+    </div>
+  </div>
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('fontsize')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input ng-model-options="{ debounce: 100 }" ng-change="updateTree()" ng-model="ng.config.fontsize" />
+    </div>
+  </div>
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('verticalDisplay')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.verticalDisplay" />
+    </div>
+  </div>
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('legend')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.legend" />
+    </div>
+  </div>
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('displaypercent')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.displayPercent" />
+    </div>
+  </div>
+
+  <div ng-repeat="hidePart in ['hideFilter','hideOption','hideRow','hideColumn','hideTotals']" class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n(hidePart)}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config[hidePart]" />
+    </div>
+  </div>
+
+  <div ng-if="!ng.cwAPIPivotUnfind" class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('enableEdit')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.enableEdit" />
+    </div>
+  </div>
+
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('kpiprop')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <select
+        ng-model="ng.config.propKPImeasure"
+        class="largeCell"
+        ng-model-options="{ debounce: 100 }"
+        ng-change="updateTree()"
+        multiple
+        style="height: 150px"
+        ng-options="o as o for o in ng.propertiesScriptnameList"
+      ></select>
+    </div>
+  </div>
+
+  <div class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('kpilabel')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" ng-model="ng.config.kpiLabel" />
+    </div>
+  </div>
+
+  <div ng-if="!ng.cwAPIPivotUnfind" class="bootstrap-iso rowFlex">
+    <div class="row-cell row-cell-label">{{$root.i18n('loadFirstPivot')}} :&nbsp;</div>
+    <div class="row-cell row-cell-value">
+      <input class="largeCell" ng-model-options="{ debounce: 100 }" ng-change="updateTree()" type="checkbox" ng-model="ng.config.loadFirstPivot" />
+    </div>
+  </div>
+
+  <pre> {{ng.config|json}}</pre>
+</div>
