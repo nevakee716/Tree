@@ -331,7 +331,7 @@
             children: this.simplify("downward", depth + 1, copyObject.associations[this.nodeID]),
           },
         };
-      } else if (this.config.nodeIdLeft !== "" && this.config.nodeIdRight !== "") {
+      } else if (this.config.nodeIdLeft && this.config.nodeIdRight) {
         titleNodeLeft = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
         titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdLeft].NodeName;
 
@@ -457,12 +457,18 @@
       that.getDiagramMaterial(() => that.parse());
     } else {
       // AsyncLoad
-      cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3/d3.min.js"], function (error) {
+      cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/jsTree/jstree.min.js"], function (error) {
         if (error === null) {
-          cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Menu/d3Menu.min.js"], function (error) {
+          cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3/d3.min.js"], function (error) {
             if (error === null) {
-              cwAPI.siteLoadingPageStart();
-              that.getDiagramMaterial(() => that.parse());
+              cwApi.customLibs.aSyncLayoutLoader.loadUrls(["modules/d3Menu/d3Menu.min.js"], function (error) {
+                if (error === null) {
+                  cwAPI.siteLoadingPageStart();
+                  that.getDiagramMaterial(() => that.parse());
+                } else {
+                  cwAPI.Log.Error(error);
+                }
+              });
             } else {
               cwAPI.Log.Error(error);
             }
