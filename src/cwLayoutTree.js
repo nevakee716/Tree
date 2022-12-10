@@ -68,6 +68,8 @@
     this.getPopOutList(this.options.CustomOptions["popOutList"]);
     try {
       this.config = JSON.parse(this.options.CustomOptions["config"]);
+      if (!this.config.propertyMapping) this.config.propertyMapping = [];
+      if (!this.config.hiddenNodes) this.config.hiddenNodes = [];
     } catch (e) {
       this.config = { propertyMapping: [], hiddenNodes: [] };
       if (source.length > 1) {
@@ -78,6 +80,8 @@
         this.config.nodeIdLeft = source[0]?.children[0]?.NodeID;
       }
     }
+
+    this.config.optimizedNodes = ["application_20006_436289450", "application_20005_1682483191"];
   };
 
   cwLayoutTree.prototype.getPopOutList = function (options) {
@@ -136,6 +140,7 @@
   cwLayoutTree.prototype.getDiagramMaterial = function (callback) {
     var self = this;
     this.templateIds = new Set();
+
     this.config.propertyMapping.forEach((pm) => {
       if (pm.templateDiagram) this.templateIds.add(pm.templateDiagram);
     });
@@ -249,6 +254,7 @@
           } else {
             element = {};
             element.name = this.getItemDisplayString(nextChild);
+            element.sortProp = this.getItemDisplayString(nextChild);
             element.object_id = nextChild.object_id;
             element.objectTypeScriptName = nextChild.objectTypeScriptName;
             let config = this.getConfig(nextChild.nodeID);
@@ -305,13 +311,15 @@
   };
 
   cwLayoutTree.prototype.parse = function () {
-    console.log("parse");
     var depth = 0;
     var titleNodeRight, titleNodeLeft;
     var copyObject = $.extend(true, {}, this.originalObject);
 
     if (cwAPI.isIndexPage()) {
       this.title = this.mmNode.NodeName;
+      let element = {};
+      element.name = "";
+      this.centralElement = element;
       if (this.config.nodeIdLeft === "") {
         titleNodeRight = this.viewSchema.NodesByID[this.config.nodeIdRight].NodeName;
         this.maxLength["downward"][0] = titleNodeRight.length;
@@ -350,6 +358,7 @@
       let config = this.getConfig(copyObject.nodeID);
       let element = {};
       element.name = this.getItemDisplayString(copyObject);
+
       if (config?.propertyMapping) {
         element.faIcon = cwApi.customLibs.utils.getIconAndColorFromItemValue(copyObject, config.propertyMapping);
         element.spreadToEdge = config.spreadToEdge;
@@ -398,7 +407,40 @@
         };
       }
     }
-    this.createTree();
+    if (this.simplifiedJson?.upward) this.optimizeTree(this.simplifiedJson.upward);
+    if (this.simplifiedJson?.downward) this.optimizeTree(this.simplifiedJson.downward);
+    if (this.simplifiedJson?.downward || this.simplifiedJson?.upward) this.createTree();
+  };
+
+  cwLayoutTree.prototype.optimizeTree = function (branch) {
+    if (branch.children) {
+      branch.children.sort((childA, childB) => {
+        let sortA = childA.sortProp;
+        let sortB = childB.sortProp;
+        if (childA.children && childA.children.length == 1) {
+          sortA = childA.children[0].sortProp;
+        }
+        if (childB.children && childB.children.length == 1) {
+          sortB = childB.children[0].sortProp;
+        }
+        return sortA.localeCompare(sortB);
+      });
+
+      let previous = "";
+      branch.children.forEach((child) => {
+        if (child.children && child.children.length > 0) {
+          let n = child?.children.map((x) => x.sortProp).join("");
+          if (n === previous) {
+            child.children = [];
+            child.mergeToPrevious = true;
+          } else {
+            previous = n;
+          }
+        }
+      });
+
+      this.optimizeTree(branch.children);
+    }
   };
 
   cwLayoutTree.prototype.applyJavaScript = function () {
